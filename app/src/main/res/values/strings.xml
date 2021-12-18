@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">WordCard</string>
+    <string name="add_folder">Add folder</string>
+    <string name="add_word">Add word</string>
+    <string name="hint_folder">Folder...</string>
+    <string name="button_save">保存</string>
+    <string name="not_saved">保存できませんでした。</string>
+    <string name="dialog_btn_ok">削除</string>
 </resources>
