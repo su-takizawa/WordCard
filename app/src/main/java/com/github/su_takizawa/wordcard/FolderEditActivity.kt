@@ -17,7 +17,7 @@ class FolderEditActivity : EditBaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_folder_edit)
 
-        editWordView = findViewById(R.id.s02EtFolder)
+        editWordView = findViewById(R.id.a02EtFolder)
 
         val mode = Mode.valueOf(intent.getStringExtra("MODE")!!)
         val folder = Gson().fromJson(intent.getStringExtra("BODY"), Folder::class.java) as Folder
