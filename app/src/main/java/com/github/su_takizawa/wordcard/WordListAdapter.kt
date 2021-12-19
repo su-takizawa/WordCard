@@ -27,7 +27,7 @@ class WordListAdapter : ListAdapter<Word, WordListAdapter.WordViewHolder>(WordsC
 
     override fun onBindViewHolder(holder: WordViewHolder, position: Int) {
         val current = getItem(position)
-        holder.bind(current.frontWord, current.rearWord, current.id)
+        holder.bind(current.frontLang, current.frontWord, current.rearWord, current.id)
         val radioButton = holder.itemView.findViewById<RadioButton>(R.id.a03RbItem)
         radioButton.isChecked = position == checkPosition
         radioButton.setOnClickListener {
@@ -38,11 +38,13 @@ class WordListAdapter : ListAdapter<Word, WordListAdapter.WordViewHolder>(WordsC
     }
 
     class WordViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val wordLangTv: TextView = itemView.findViewById(R.id.a03TvLang)
         private val wordItemView: TextView = itemView.findViewById(R.id.a03TvItem)
         private val radioButton: RadioButton = itemView.findViewById(R.id.a03RbItem)
 
-        fun bind(text: String, text2: String, id: Int) {
-            wordItemView.text = "${text}/${text2}"
+        fun bind(text1: String, text2: String, text3: String, id: Int) {
+            wordLangTv.text = text1
+            wordItemView.text = "${text2}/${text3}"
             radioButton.text = id.toString()
 
         }
@@ -61,20 +63,12 @@ class WordListAdapter : ListAdapter<Word, WordListAdapter.WordViewHolder>(WordsC
                         // TTS初期化
                         if (TextToSpeech.SUCCESS == status) {
                             Log.d(TAG, "initialized")
-                            //gengosettei
-                            val result = tts.setLanguage(Locale("vi"))
-                            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                                //genngo deta ga daunnro-do sareteimasen, wifi kannkyou he tunagu mosikuwa settei gamen yori download site kudasai
-                                // otukaino tanmatu deha gengoha sapo-to sareteimasen
-                                Log.e("Text2Speech", "$result is not supported")
-                            }
                         } else {
                             Log.e(TAG, "failed to initialize")
                         }
                     }
 
                 tts = TextToSpeech(parent.context, textToSpeechInitListener)
-
 
                 //クリックイベントを登録
                 view.setOnClickListener {
@@ -83,6 +77,14 @@ class WordListAdapter : ListAdapter<Word, WordListAdapter.WordViewHolder>(WordsC
                         it.findViewById<RadioButton>(R.id.a03RbItem).text,
                         Toast.LENGTH_LONG
                     ).show()
+                    val wordLangTv: TextView = view.findViewById(R.id.a03TvLang)
+                    //言語設定
+                    val result = tts.setLanguage(Locale(wordLangTv.text.toString()))
+                    if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                        //言語データがダウンロードされていません、Wifi環境へ繋ぐかもしくは設定画面よりダウンロードしてください。
+                        //お使いの端末では言語はサポートされていません。
+                        Log.e("Text2Speech", "$result is not supported")
+                    }
                     speechText(view)
                 }
 

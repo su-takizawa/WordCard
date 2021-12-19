@@ -40,6 +40,24 @@ class Util {
                 else -> throw RuntimeException("対象の選択肢がありません")
             }
         }
+
+        fun getLangToLSpnner(lang: String): Int {
+            return when (lang) {
+                Locale.JAPAN.displayLanguage -> 0
+                Locale.US.displayLanguage -> 1
+                Locale.FRANCE.displayLanguage -> 2
+                Locale.CHINESE.displayLanguage -> 3
+                // 韓国語
+                "ko" -> 4
+                // ベトナム語
+                "vi" -> 5
+                // タイ語
+                "th" -> 6
+                // ロシア語
+                "ru" -> 7
+                else -> 0//throw RuntimeException("対象の選択肢がありません")
+            }
+        }
     }
 }
 

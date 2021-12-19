@@ -3,7 +3,20 @@
     <string name="add_folder">Add folder</string>
     <string name="add_word">Add word</string>
     <string name="hint_folder">Folder...</string>
+    <string name="hint_word">Word...</string>
+    <string name="button_translate">翻訳</string>
     <string name="button_save">保存</string>
     <string name="not_saved">保存できませんでした。</string>
+    <string name="not_found_translate">Playストアで「Google翻訳」をインストールしてください。</string>
     <string name="dialog_btn_ok">削除</string>
+    <string-array name="langs">
+        <item>日本語</item>
+        <item>英語</item>
+        <item>フランス語</item>
+        <item>中国語</item>
+        <item>韓国語</item>
+        <item>ベトナム語</item>
+        <item>タイ語</item>
+        <item>ロシア語</item>
+    </string-array>
 </resources>
