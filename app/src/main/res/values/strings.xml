@@ -6,7 +6,8 @@
     <string name="hint_word">Word...</string>
     <string name="button_translate">翻訳</string>
     <string name="button_save">保存</string>
-    <string name="button_auto">AUTO</string>
+    <string name="button_auto_on">AUTO ON</string>
+    <string name="button_auto_off">AUTO OFF</string>
     <string name="not_saved">保存できませんでした。</string>
     <string name="not_found_translate">Playストアで「Google翻訳」をインストールしてください。</string>
     <string name="dialog_btn_ok">削除</string>

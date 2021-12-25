@@ -14,9 +14,10 @@
 
     <ToggleButton
         android:id="@+id/a05TbAuto"
-        android:text="@string/button_auto"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:textOn="@string/button_auto_on"
+        android:textOff="@string/button_auto_off" />
 
     <Button
         android:id="@+id/a05BtPlay"
@@ -35,10 +36,10 @@
         android:text="再生速度" />
 
     <SeekBar
+        android:id="@+id/a05Sb"
         android:layout_height="wrap_content"
-        android:id="@+id/SeekBar00"
         android:layout_width="match_parent"
-        android:progress="5"
+        android:progress="10"
         android:max="10"></SeekBar>
 
 </LinearLayout>

@@ -16,12 +16,14 @@
         card_view:cardCornerRadius="16dp">
         <!-- TODO: Update blank fragment layout -->
         <TextView
+            android:id="@+id/a05TvItem"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:padding="32dp"
             android:gravity="center_vertical"
             android:textSize="24dp"
             android:background="@color/purple_200"
+            android:clickable="true"
             android:text="@string/hello_blank_fragment" />
     </androidx.cardview.widget.CardView>
 
