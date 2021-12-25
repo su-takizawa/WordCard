@@ -59,7 +59,7 @@ class FolderListAdapter :
                         Toast.LENGTH_LONG
                     ).show()
 
-                    val intent = Intent(it.context, WordListActivity::class.java)
+                    val intent = Intent(it.context, WordBrowsingActivity::class.java)
                     intent.putExtra("FOLDER_ID", it.findViewById<RadioButton>(R.id.a01RbItem).text)
                     it.context.startActivity(intent)
                 }

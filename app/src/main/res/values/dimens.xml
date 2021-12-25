@@ -2,4 +2,7 @@
 <resources>
     <dimen name="big_padding">16dp</dimen>
     <dimen name="min_height">48dp</dimen>
+    <!--Fragmentのはみ出しサイズ-->
+    <dimen name="offset">64dp</dimen>
+    <dimen name="page_margin">16dp</dimen>
 </resources>
