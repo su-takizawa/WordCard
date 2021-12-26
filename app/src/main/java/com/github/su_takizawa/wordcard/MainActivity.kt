@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.github.su_takizawa.wordcard.module.Folder
+import com.github.su_takizawa.wordcard.module.Util.Companion.getSpinnerToLang
 import com.github.su_takizawa.wordcard.module.Word
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
@@ -39,6 +40,10 @@ class MainActivity : AppCompatActivity() {
         val btnDbInit = findViewById<Button>(R.id.btnDbInit)
 
         btnDbInit.setOnClickListener {
+            (0..7).forEach {
+                val lang = getSpinnerToLang(it)
+                Log.v("TAG", lang)
+            }
             val newFolder = Folder(0, "ベトナム語")
             wordViewModel.folderInsert(newFolder)
             val newFolder2 = Folder(0, "中国語")

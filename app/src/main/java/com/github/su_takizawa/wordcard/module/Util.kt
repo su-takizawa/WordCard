@@ -18,17 +18,17 @@ class Util {
         fun <T> gsonResDecode(json: String, tClass: Class<T>): EditActivityRes<T> {
             val gson = Gson();
             val type: ParameterizedType = GenericOf(EditActivityRes::class.java, tClass)
-            Log.v("TAG", "TYPE1:${type.getRawType()}");
-            Log.v("TAG", "TYPE2:${type.getActualTypeArguments()[0]}");
+            Log.v("TAG", "TYPE1:${type.rawType}");
+            Log.v("TAG", "TYPE2:${type.actualTypeArguments[0]}");
             return gson.fromJson(json, type)
         }
 
-        fun getSpnnerToLang(selectedItemNo: Int): String {
+        fun getSpinnerToLang(selectedItemNo: Int): String {
             return when (selectedItemNo) {
-                0 -> Locale.JAPAN.displayLanguage
-                1 -> Locale.US.displayLanguage
-                2 -> Locale.FRANCE.displayLanguage
-                3 -> Locale.CHINESE.displayLanguage
+                0 -> Locale.JAPAN.language
+                1 -> Locale.US.language
+                2 -> Locale.FRANCE.language
+                3 -> Locale.CHINESE.language
                 // 韓国語
                 4 -> "ko"
                 // ベトナム語
@@ -41,12 +41,12 @@ class Util {
             }
         }
 
-        fun getLangToLSpnner(lang: String): Int {
+        fun getLangToSpinner(lang: String): Int {
             return when (lang) {
-                Locale.JAPAN.displayLanguage -> 0
-                Locale.US.displayLanguage -> 1
-                Locale.FRANCE.displayLanguage -> 2
-                Locale.CHINESE.displayLanguage -> 3
+                Locale.JAPAN.language -> 0
+                Locale.US.language -> 1
+                Locale.FRANCE.language -> 2
+                Locale.CHINESE.language -> 3
                 // 韓国語
                 "ko" -> 4
                 // ベトナム語
@@ -64,9 +64,10 @@ class Util {
 /**
  * ジェネリクス情報を保持するクラス
  */
-class GenericOf<X, Y>(private val container: Class<X>, private val wrapped: Class<Y>) :
-    ParameterizedType {
-
+class GenericOf<X, Y>(
+    private val container: Class<X>,//
+    private val wrapped: Class<Y>//
+) : ParameterizedType {
     override fun getActualTypeArguments(): Array<Type> {
         return arrayOf(wrapped)
     }
@@ -78,5 +79,4 @@ class GenericOf<X, Y>(private val container: Class<X>, private val wrapped: Clas
     override fun getOwnerType(): Type? {
         return null
     }
-
 }
