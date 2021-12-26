@@ -6,8 +6,8 @@ import android.content.pm.ResolveInfo
 import android.os.Bundle
 import android.view.View
 import android.widget.*
-import com.github.su_takizawa.wordcard.module.Util.Companion.getLangToLSpnner
-import com.github.su_takizawa.wordcard.module.Util.Companion.getSpnnerToLang
+import com.github.su_takizawa.wordcard.module.Util.Companion.getLangToSpinner
+import com.github.su_takizawa.wordcard.module.Util.Companion.getSpinnerToLang
 import com.github.su_takizawa.wordcard.module.Word
 import com.google.gson.Gson
 
@@ -19,8 +19,8 @@ class WordEditActivity : EditBaseActivity() {
     private lateinit var spFrontLang: Spinner
     private lateinit var spRearLang: Spinner
 
-    private var frontLang: String = getSpnnerToLang(0)
-    private var rearLang: String = getSpnnerToLang(0)
+    private var frontLang: String = getSpinnerToLang(0)
+    private var rearLang: String = getSpinnerToLang(0)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,9 +34,9 @@ class WordEditActivity : EditBaseActivity() {
         val mode = Mode.valueOf(intent.getStringExtra("MODE")!!)
         val word = Gson().fromJson(intent.getStringExtra("BODY"), Word::class.java) as Word
         if (mode == Mode.EDIT) {
-            spFrontLang.setSelection(getLangToLSpnner(word.frontLang))
+            spFrontLang.setSelection(getLangToSpinner(word.frontLang))
             editFrontWord.setText(word.frontWord)
-            spRearLang.setSelection(getLangToLSpnner(word.rearLang))
+            spRearLang.setSelection(getLangToSpinner(word.rearLang))
             editRearWord.setText(word.rearWord)
         }
 
@@ -51,7 +51,7 @@ class WordEditActivity : EditBaseActivity() {
                 id: Long
             ) {
                 val idx = spFrontLang.selectedItemPosition
-                frontLang = getSpnnerToLang(idx)
+                frontLang = getSpinnerToLang(idx)
             }
 
             /**
@@ -71,7 +71,7 @@ class WordEditActivity : EditBaseActivity() {
                 id: Long
             ) {
                 val idx = spRearLang.selectedItemPosition
-                rearLang = getSpnnerToLang(idx)
+                rearLang = getSpinnerToLang(idx)
             }
 
             /**

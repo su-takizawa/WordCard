@@ -4,21 +4,29 @@ import android.content.ContentValues
 import android.content.Intent
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
-import android.speech.tts.UtteranceProgressListener
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.SeekBar
-import android.widget.TextView
 import android.widget.ToggleButton
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.asFlow
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.ViewPager2
 import com.github.su_takizawa.wordcard.module.Word
+import com.github.su_takizawa.wordcard.state.TtsFrame
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
 import java.lang.Math.abs
-import java.util.*
 
 
 class WordBrowsingActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
@@ -29,13 +37,40 @@ class WordBrowsingActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private lateinit var tts: TextToSpeech
 
+    private lateinit var ttsFrame: TtsFrame
+
     private var folderId: Int = 0
+
+    private lateinit var wordListAdapter: WordFragmentStateAdapter
 
     private lateinit var viewpager: ViewPager2
 
     private lateinit var seekBar: SeekBar
 
     private var wordList: List<Word> = listOf()
+
+    private val startForResult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult? ->
+            CoroutineScope(Dispatchers.IO).launch {
+                wordViewModel.getWords(folderId).asFlow().flatMapConcat { it.asFlow() }.toList()
+                    .let { wordListAdapter.updateList(it) }
+            }
+            //{ wordListAdapter.updateList(it) }
+        }
+
+    inner class MyObserver(val a: String) : RecyclerView.AdapterDataObserver() {
+        override fun onItemRangeChanged(positionStart: Int, itemCount: Int) {
+            super.onItemRangeChanged(positionStart, itemCount)
+            Log.d("TAG", "positionStart:$positionStart")
+
+        }
+
+        override fun onChanged() {
+            super.onChanged()
+            Log.d("TAG", "AdapterDataObserver_onChange")
+        }
+
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,9 +81,12 @@ class WordBrowsingActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         // ViewPager2のインスタンス化
         viewpager = findViewById(R.id.viewpager)
         // ページインスタンスを用意
-        val wordListAdapter = WordFragmentListAdapter(wordList, this)
+        wordListAdapter = WordFragmentStateAdapter(wordList, this)
         // セット
         viewpager.adapter = wordListAdapter
+        val myObserver = MyObserver("")
+        wordListAdapter.registerAdapterDataObserver(myObserver)
+
 
         //wordリストの取得
         wordViewModel.getWords(folderId).observe(this, { words ->
@@ -76,46 +114,26 @@ class WordBrowsingActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             }
         })
 
+
         val btPlay = findViewById<Button>(R.id.a05BtPlay)
         btPlay.setOnClickListener {
             val fragments = supportFragmentManager.fragments
-            val fragment = fragments[viewpager.currentItem] as WordFragment
-            fragment.view?.findViewById<TextView>(R.id.a05TvItem)?.let { tvItem ->
-                val lang = when (fragment.isRear) {
-                    false -> fragment.word.frontLang
-                    true -> fragment.word.rearLang
-                }
-                speechText(lang, tvItem.text.toString())
-                //tvItem.performClick()
-            }
+            ttsFrame.getState().doStartOrStop(fragments, viewpager.currentItem, ttsFrame)
         }
 
         val tgAuto = findViewById<ToggleButton>(R.id.a05TbAuto)
-        tgAuto.isChe
         tgAuto.setOnCheckedChangeListener { _, isChecked ->
             val fragments = supportFragmentManager.fragments
-            val fragment = fragments[viewpager.currentItem] as WordFragment
             if (isChecked) {
-                fragment.view?.findViewById<TextView>(R.id.a05TvItem)?.let { tvItem ->
-                    val lang = when (fragment.isRear) {
-                        false -> fragment.word.frontLang
-                        true -> fragment.word.rearLang
-                    }
-                    speechText(lang, tvItem.text.toString())
-                }
+                ttsFrame.getState().doAutoOn(fragments, viewpager.currentItem, ttsFrame)
             }
         }
 
         seekBar = findViewById(R.id.a05Sb)
-//        sb.progress
-//        sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener(){
-//            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-//                tts
-//            }
-//
-//        })
 
         tts = TextToSpeech(this, this)
+
+        ttsFrame = TtsFrame(this, tts, viewpager)
         /*
         - 再生ボタンの実装
 
@@ -139,6 +157,11 @@ class WordBrowsingActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
          */
     }
 
+    override fun onResume() {
+        super.onResume()
+
+    }
+
     /**
      * アクションバーにつけるメニュー作成
      */
@@ -155,7 +178,9 @@ class WordBrowsingActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             R.id.a05BtList -> {
                 val intent = Intent(this, WordListActivity::class.java)
                 intent.putExtra("FOLDER_ID", folderId.toString())
-                startActivity(intent)
+                //startActivity(intent)
+                startForResult.launch(intent)
+                Log.d("TAG", "RUN_START_ACTIVITY")
             }
         }
         return true
@@ -174,61 +199,13 @@ class WordBrowsingActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        shutDown()
+    }
 
     private fun shutDown() {
         // to release the resource of TextToSpeech
         tts.shutdown()
-    }
-
-    private fun speechText(lang: String, text: String) {
-        val result = tts.setLanguage(Locale(lang))
-        if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-            //言語データがダウンロードされていません、Wifi環境へ繋ぐかもしくは設定画面よりダウンロードしてください。
-            //お使いの端末ではこの言語はサポートされていません。
-            Log.e("Text2Speech", "$result is not supported")
-        }
-        Log.e("Text2Speech", "$result debug")
-        if (text.isNotEmpty()) {
-            if (tts.isSpeaking) {
-                Log.v("Text2Speech", "STOP")
-                tts.stop()
-                return
-            }
-            setSpeechRate()
-            setSpeechPitch()
-            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "messageID")
-            setTtsListener()
-        }
-    }
-
-    // 読み上げのスピード
-    private fun setSpeechRate() {
-        tts.setSpeechRate(seekBar.progress / 10.toFloat())
-    }
-
-    // 読み上げのピッチ
-    private fun setSpeechPitch() {
-        tts.setPitch(1.0.toFloat())
-    }
-
-    // 読み上げの始まりと終わりを取得
-    private fun setTtsListener() {
-        val listenerResult =
-            tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
-                override fun onDone(utteranceId: String) {
-                    Log.d("TAG", "progress on Done $utteranceId")
-                }
-
-                override fun onError(utteranceId: String) {
-                    Log.d("TAG", "progress on Error $utteranceId")
-                }
-
-                override fun onStart(utteranceId: String) {
-                    Log.d("TAG", "progress on Start $utteranceId")
-                }
-            })
-        if (listenerResult != TextToSpeech.SUCCESS) {
-            Log.e("TAG", "failed to add utterance progress listener")
-        }
     }
 }

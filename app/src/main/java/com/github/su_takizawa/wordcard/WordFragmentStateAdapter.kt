@@ -1,14 +1,16 @@
 package com.github.su_takizawa.wordcard
 
+import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.github.su_takizawa.wordcard.module.Word
 import com.google.gson.Gson
 
 
-class WordFragmentListAdapter(
+class WordFragmentStateAdapter(
     initial: List<Word>,
     fragmentActivity: FragmentActivity
 ) : FragmentStateAdapter(fragmentActivity) {
@@ -24,7 +26,10 @@ class WordFragmentListAdapter(
     }
 
     override fun createFragment(position: Int): Fragment {
-        return WordFragment.newInstance(Gson().toJson(list[position]))
+        val wordFragment = WordFragment.newInstance(Gson().toJson(list[position]))
+        val myObserver = MyObserver(wordFragment)
+        this.registerAdapterDataObserver(myObserver)
+        return wordFragment
     }
 
     override fun getItemId(position: Int): Long {
@@ -59,4 +64,19 @@ class WordFragmentListAdapter(
 
         diff.dispatchUpdatesTo(this)
     }
+
+    inner class MyObserver(wordFragment: WordFragment) : RecyclerView.AdapterDataObserver() {
+        override fun onItemRangeChanged(positionStart: Int, itemCount: Int) {
+            super.onItemRangeChanged(positionStart, itemCount)
+            Log.d("TAG", "positionStart:$positionStart")
+
+        }
+
+        override fun onChanged() {
+            super.onChanged()
+            Log.d("TAG", "AdapterDataObserver_onChange")
+        }
+
+    }
+
 }
