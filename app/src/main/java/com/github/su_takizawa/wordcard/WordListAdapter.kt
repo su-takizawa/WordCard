@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
 import android.widget.TextView
-import android.widget.Toast
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -72,11 +71,6 @@ class WordListAdapter : ListAdapter<Word, WordListAdapter.WordViewHolder>(WordsC
 
                 //クリックイベントを登録
                 view.setOnClickListener {
-                    Toast.makeText(
-                        it.context,
-                        it.findViewById<RadioButton>(R.id.a03RbItem).text,
-                        Toast.LENGTH_LONG
-                    ).show()
                     val wordLangTv: TextView = view.findViewById(R.id.a03TvLang)
                     //言語設定
                     val result = tts.setLanguage(Locale(wordLangTv.text.toString()))
