@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
 import android.widget.TextView
-import android.widget.Toast
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -53,12 +52,6 @@ class FolderListAdapter :
 
                 //クリックイベントを登録
                 view.setOnClickListener {
-                    Toast.makeText(
-                        it.context,
-                        it.findViewById<RadioButton>(R.id.a01RbItem).text,
-                        Toast.LENGTH_LONG
-                    ).show()
-
                     val intent = Intent(it.context, WordBrowsingActivity::class.java)
                     intent.putExtra("FOLDER_ID", it.findViewById<RadioButton>(R.id.a01RbItem).text)
                     it.context.startActivity(intent)

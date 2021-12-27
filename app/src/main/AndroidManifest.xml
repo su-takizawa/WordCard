@@ -31,10 +31,10 @@
             android:name=".FolderEditActivity"
             android:exported="true" />
         <activity
-            android:name=".FolderListActivity"
+            android:name=".MainActivity"
             android:exported="true" />
         <activity
-            android:name=".MainActivity"
+            android:name=".FolderListActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
