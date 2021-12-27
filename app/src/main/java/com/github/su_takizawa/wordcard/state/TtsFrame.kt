@@ -5,16 +5,15 @@ import android.speech.tts.UtteranceProgressListener
 import android.util.Log
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
-import androidx.viewpager2.widget.ViewPager2
 import com.github.su_takizawa.wordcard.R
-import com.github.su_takizawa.wordcard.WordBrowsingActivity
 import com.github.su_takizawa.wordcard.WordFragment
 import java.util.*
 
 class TtsFrame(
-    override val activity: WordBrowsingActivity,//
-    override val tts: TextToSpeech,//
-    override val viewPager: ViewPager2//
+    override val activity: com.github.su_takizawa.wordcard.WordBrowsingActivity,//
+    override val tts: android.speech.tts.TextToSpeech,//
+    override val viewPager: androidx.viewpager2.widget.ViewPager2,//
+    override val supportFragmentManager: androidx.fragment.app.FragmentManager,//
 ) :
     TtsContext {
     private var state: State = StopState.getInstance()
