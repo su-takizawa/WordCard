@@ -11,10 +11,6 @@ import com.github.su_takizawa.wordcard.module.FolderDao
 import com.github.su_takizawa.wordcard.module.Word
 import com.github.su_takizawa.wordcard.module.WordDao
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.flatMapConcat
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 
 // Annotates class to be a Room Database with a table (entity) of the Word class
@@ -32,6 +28,7 @@ public abstract class WordRoomDatabase : RoomDatabase() {
         private val scope: CoroutineScope
     ) : RoomDatabase.Callback() {
 
+        //データベース作成時に一度だけ呼ばれる
         override fun onCreate(db: SupportSQLiteDatabase) {
             super.onCreate(db)
             INSTANCE?.let { database ->
@@ -39,41 +36,18 @@ public abstract class WordRoomDatabase : RoomDatabase() {
                     populateDatabase(database.folderDao(), database.wordDao())
                 }
             }
+            Log.d("CreateRoomDatabase", "version:" + db.version)
+        }
+
+        //データベースを開くたびに呼ばれる
+        override fun onOpen(db: SupportSQLiteDatabase) {
+            super.onOpen(db)
+            Log.d("OpenRoomDatabase", "version:" + db.version)
         }
 
         suspend fun populateDatabase(folderDao: FolderDao, wordDao: WordDao) {
             // Delete all content here.
-            wordDao.deleteAll()
-            wordDao.deleteAll()
-            val newFolder = Folder(0, "ベトナム語")
-            folderDao.insert(newFolder)
-            Log.v("TAG", "after insert ${folderDao.getAll().toString()}")
-            val newFolder2 = Folder(0, "中国語")
-            folderDao.insert(newFolder2)
-            Log.v("TAG", "after insert ${folderDao.getAll().toString()}")
-            val folderList = folderDao.getAll().flattenToList()
-            val updateTaget =
-                folderList.find { it.id == getFolderId(folderList, newFolder.folderName) }
-            updateTaget?.let {
-                it.folderName = "ベトナム語中級"
-                folderDao.update(it)
-            }
-            Log.v("TAG", "after update ${folderDao.getAll().toString()}")
-            val folderList2 = folderDao.getAll().flattenToList()
-            val folderId = getFolderId(folderList2, updateTaget?.folderName ?: "")
-            Log.v("TAG", "folderId:$folderId")
-            val newWord = Word(0, folderId, "vn", "xin chao", "ja", "こんにちは")
-            wordDao.insert(newWord)
-            folderDao.loadFolderAndWords().forEach {
-                Log.v("TAG", "after word insert ${it.folder}:${it.words}}")
-            }
         }
-
-        fun getFolderId(folders: List<Folder>, key: String): Int {
-            return folders.find { it.folderName == key }?.id ?: -1;
-        }
-
-        suspend fun <T> Flow<List<T>>.flattenToList() = flatMapConcat { it.asFlow() }.toList()
     }
 
     companion object {
@@ -92,7 +66,8 @@ public abstract class WordRoomDatabase : RoomDatabase() {
                     context.applicationContext,
                     WordRoomDatabase::class.java,
                     "word_database"
-                ).addCallback(WordDatabaseCallback(scope))
+                ).createFromAsset("predbdata/word_database.db")//assetsフォルダ内のDBを事前読み込み
+                    .addCallback(WordDatabaseCallback(scope))
                     .build()
                 INSTANCE = instance
                 // return instance

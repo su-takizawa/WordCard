@@ -10,8 +10,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.github.su_takizawa.wordcard.module.Folder
-import com.github.su_takizawa.wordcard.module.Util.Companion.getSpinnerToLang
-import com.github.su_takizawa.wordcard.module.Word
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flatMapConcat
@@ -40,21 +38,20 @@ class MainActivity : AppCompatActivity() {
         val btnDbInit = findViewById<Button>(R.id.btnDbInit)
 
         btnDbInit.setOnClickListener {
-            (0..7).forEach {
-                val lang = getSpinnerToLang(it)
-                Log.v("TAG", lang)
-            }
-            val newFolder = Folder(0, "ベトナム語")
+            var newFolder = Folder(0, "英語")
             wordViewModel.folderInsert(newFolder)
-            val newFolder2 = Folder(0, "中国語")
-            wordViewModel.folderInsert(newFolder2)
-            var folderId = 0
-            wordViewModel.allFolders.observe(this, { folders ->
-                folderId = getFolderId(folders, newFolder.folderName)
-                Log.v("TAG", "folderIdObserve:$folderId")
-                val newWord = Word(0, folderId, "vn", "xin chao", "ja", "こんにちは")
-                wordViewModel.wordInsert(newWord)
-            })
+            newFolder = Folder(0, "フランス語")
+            wordViewModel.folderInsert(newFolder)
+            newFolder = Folder(0, "中国語")
+            wordViewModel.folderInsert(newFolder)
+            newFolder = Folder(0, "韓国語")
+            wordViewModel.folderInsert(newFolder)
+            newFolder = Folder(0, "ベトナム語")
+            wordViewModel.folderInsert(newFolder)
+            newFolder = Folder(0, "タイ語")
+            wordViewModel.folderInsert(newFolder)
+            newFolder = Folder(0, "ロシア語")
+            wordViewModel.folderInsert(newFolder)
         }
 
         //　ボタンを設定

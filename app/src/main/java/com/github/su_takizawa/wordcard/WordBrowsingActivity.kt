@@ -10,22 +10,12 @@ import android.view.MenuItem
 import android.widget.Button
 import android.widget.SeekBar
 import android.widget.ToggleButton
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.asFlow
-import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.ViewPager2
 import com.github.su_takizawa.wordcard.module.Word
 import com.github.su_takizawa.wordcard.state.TtsFrame
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.flatMapConcat
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.launch
 import java.lang.Math.abs
 
 
@@ -49,29 +39,6 @@ class WordBrowsingActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private var wordList: List<Word> = listOf()
 
-    private val startForResult =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult? ->
-            CoroutineScope(Dispatchers.IO).launch {
-                wordViewModel.getWords(folderId).asFlow().flatMapConcat { it.asFlow() }.toList()
-                    .let { wordListAdapter.updateList(it) }
-            }
-            //{ wordListAdapter.updateList(it) }
-        }
-
-    inner class MyObserver(val a: String) : RecyclerView.AdapterDataObserver() {
-        override fun onItemRangeChanged(positionStart: Int, itemCount: Int) {
-            super.onItemRangeChanged(positionStart, itemCount)
-            Log.d("TAG", "positionStart:$positionStart")
-
-        }
-
-        override fun onChanged() {
-            super.onChanged()
-            Log.d("TAG", "AdapterDataObserver_onChange")
-        }
-
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_word_browsing)
@@ -84,9 +51,8 @@ class WordBrowsingActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         wordListAdapter = WordFragmentStateAdapter(wordList, this)
         // セット
         viewpager.adapter = wordListAdapter
-        val myObserver = MyObserver("")
-        wordListAdapter.registerAdapterDataObserver(myObserver)
-
+        // 100ページ生成
+        viewpager.offscreenPageLimit = 100
 
         //wordリストの取得
         wordViewModel.getWords(folderId).observe(this, { words ->
@@ -133,33 +99,7 @@ class WordBrowsingActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         tts = TextToSpeech(this, this)
 
-        ttsFrame = TtsFrame(this, tts, viewpager)
-        /*
-        - 再生ボタンの実装
-
-        Fragmentのメインのテキストに書かれているテキストを再生
-        メインlangも参照
-
-        再生中はポーズボタンになる
-
-        再生速度も調整可能
-
-        - Autoボタンの実装
-
-
-        メインのテキストを再生したら
-        FragmentにあるTextViewのOnClickLisnerを外部から動かして
-        反転したらそのテキストを再生
-        最後のFragmentになったら停止
-        次のFragmentへ遷移
-
-
-         */
-    }
-
-    override fun onResume() {
-        super.onResume()
-
+        ttsFrame = TtsFrame(this, tts, viewpager, supportFragmentManager)
     }
 
     /**
@@ -178,8 +118,7 @@ class WordBrowsingActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             R.id.a05BtList -> {
                 val intent = Intent(this, WordListActivity::class.java)
                 intent.putExtra("FOLDER_ID", folderId.toString())
-                //startActivity(intent)
-                startForResult.launch(intent)
+                startActivity(intent)
                 Log.d("TAG", "RUN_START_ACTIVITY")
             }
         }
@@ -205,7 +144,6 @@ class WordBrowsingActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     private fun shutDown() {
-        // to release the resource of TextToSpeech
         tts.shutdown()
     }
 }
