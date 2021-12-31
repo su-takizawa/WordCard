@@ -32,13 +32,14 @@ class WordFragmentStateAdapter(
         return wordFragment
     }
 
-    override fun getItemId(position: Int): Long {
-        return list[position].id.toLong()
-    }
-
-    override fun containsItem(itemId: Long): Boolean {
-        return list.any { it.id.toLong() == itemId }
-    }
+    // 項番を再生時に使うため、ただの連番をする。
+//    override fun getItemId(position: Int): Long {
+//        return list[position].id.toLong()
+//    }
+//
+//    override fun containsItem(itemId: Long): Boolean {
+//        return list.any { it.id.toLong() == itemId }
+//    }
 
     fun updateList(newList: List<Word>) {
         val diff = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
