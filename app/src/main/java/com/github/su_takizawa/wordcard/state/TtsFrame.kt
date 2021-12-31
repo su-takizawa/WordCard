@@ -35,10 +35,10 @@ class TtsFrame(
         lang: String,
         text: String
     ) {
-        Log.v("Text2Speech", "isSpeaking:${tts.isSpeaking}")
+        Log.v("Text2Speech", "isSpeaking:${tts.isSpeaking},lang:${lang},text:${text}")
         if (text.isNotEmpty()) {
             val result = tts.setLanguage(Locale(lang))
-            Log.e("Text2Speech", "$lang,$result debug")
+            Log.v("Text2Speech", "$lang,$result debug")
             if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                 //言語データがダウンロードされていません、Wifi環境へ繋ぐかもしくは設定画面よりダウンロードしてください。
                 //お使いの端末ではこの言語はサポートされていません。
