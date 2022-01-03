@@ -10,7 +10,6 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
 import android.widget.RadioButton
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -18,14 +17,13 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.core.view.get
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
-abstract class ListBaseActivity<C,T,EC> : AppCompatActivity() {
+abstract class ListBaseActivity<C, T, EC> : AppCompatActivity() {
 
     val wordViewModel: WordViewModel by viewModels {
         WordViewModelFactory((application as WordsApplication).repository)
@@ -65,7 +63,7 @@ abstract class ListBaseActivity<C,T,EC> : AppCompatActivity() {
             val intent = Intent(this@ListBaseActivity, getEditClass())
 //            intent.putExtra("BODY",getAddRequest())
             intent.putExtra("MODE", EditBaseActivity.Mode.ADD.toString())
-            intent.putExtra("BODY",getAddRequest())
+            intent.putExtra("BODY", getAddRequest())
             startForResult.launch(intent)
         }
 
@@ -77,8 +75,11 @@ abstract class ListBaseActivity<C,T,EC> : AppCompatActivity() {
             override fun onChanged() {
                 var i = 0
                 while (i < adapter.itemCount) {
-                    val item = recyclerView[i].findViewById<RadioButton>(getRecycleRb())
-                    if (item.isChecked) {
+                    val item =
+                        recyclerView.findViewHolderForAdapterPosition(i)?.itemView?.findViewById<RadioButton>(
+                            getRecycleRb()
+                        )
+                    if (item?.isChecked == true) {
                         //リストのラジオボタンが選択されていたらEditボタンを活性化する
                         fabEdit.isEnabled = true
                         return
@@ -93,10 +94,11 @@ abstract class ListBaseActivity<C,T,EC> : AppCompatActivity() {
             var i = 0
             Log.v("TAG", "itemCount" + adapter.itemCount)
             while (i < adapter.itemCount) {
-                val recycleItem = recyclerView[i].findViewById<RadioButton>(getRecycleRb())
-                val recycleItemText = recyclerView[i].findViewById<TextView>(getRecycleTv())
-
-                if (recycleItem.isChecked) {
+                val recycleItem =
+                    recyclerView.findViewHolderForAdapterPosition(i)?.itemView?.findViewById<RadioButton>(
+                        getRecycleRb()
+                    )
+                if (recycleItem?.isChecked == true) {
                     Log.v("TAG", recycleItem.text.toString())
 
                     val item: T = adapter.currentList[i] as T
@@ -104,7 +106,7 @@ abstract class ListBaseActivity<C,T,EC> : AppCompatActivity() {
 
                     val intent = Intent(this@ListBaseActivity, getEditClass())
                     intent.putExtra("MODE", EditBaseActivity.Mode.EDIT.toString())
-                    intent.putExtra("BODY",getEditRequest(item))
+                    intent.putExtra("BODY", getEditRequest(item))
                     startForResult.launch(intent)
                 }
                 i++
